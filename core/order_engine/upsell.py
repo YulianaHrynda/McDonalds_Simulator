@@ -5,17 +5,14 @@ from core.order_engine.adder import add_menu_item_to_order
 
 
 def get_upsell_suggestion(order: OrderState) -> Optional[str]:
-    # === Зробити комбо з бургера ===
     for item in order.items:
         if item.type == "burger" and not item.is_combo_upgrade:
             return "Would you like to make it a combo?"
 
-    # === Sauce до combo ===
     for item in order.items:
         if item.type == "combo" and "sauce" not in item.extras:
             return "Would you like a dipping sauce with your combo?"
 
-    # === Десерт: тільки 1 раз за замовлення ===
     if not order.upsell_flags.get("dessert_offered", False):
         if order.has_combo() or order.has_burger():
             order.upsell_flags["dessert_offered"] = True
@@ -29,31 +26,26 @@ def upgrade_burger_to_combo(
     order: OrderState,
     burger_name: str
 ) -> Optional[OrderItem]:
-    # Знайти бургер в замовленні
     burger = next((i for i in order.items if i.name == burger_name and i.type == "burger"), None)
     if not burger:
         return None
 
-    # Знайти combo, яке відповідає цьому бургеру
     matching_combo = next((c for c in menu.combos if c.burger == burger.name), None)
     if not matching_combo:
         return None
 
-    # Видалити бургер з замовлення
     order.items.remove(burger)
 
-    # Додати combo замість нього
     combo = add_combo_to_order(
         menu=menu,
         order=order,
         combo_name=matching_combo.name,
-        drink_name=None,  # уточнення пізніше
+        drink_name=None,
         side_name=None,
         remove_ingredients=burger.ingredients_removed,
         add_ingredients=[i.name for i in burger.ingredients_added]
     )
 
-    # Позначити, що це апгрейд
     if combo:
         combo.is_combo_upgrade = True
 

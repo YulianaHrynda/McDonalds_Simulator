@@ -8,7 +8,6 @@ def load_yaml_file(path: Path) -> dict:
         return yaml.safe_load(f)
 
 def normalize_category(raw: str) -> str:
-    # Перетворює "burgers" -> "burger", "desserts" -> "dessert", тощо
     mapping = {
         "burgers": "burger",
         "drinks": "drink",
@@ -50,20 +49,18 @@ def load_menu_data(
             sizes=sizes
         ))
 
-    # === Load combos
     combos = []
     for c in virtual_items_raw.get("combos", []):
         if c.get("virtual"):
             continue
         combos.append(Combo(
             name=c["name"],
-            burger=c["name"].replace(" Meal", ""),  # heuristic
+            burger=c["name"].replace(" Meal", ""),
             side_default=c.get("slots", {}).get("fries", ["French Fries"])[0],
             drink_required=True,
             price=c["price"]
         ))
 
-    # === Load upsells
     upsells = []
     for u in upsells_raw.get("upsells", []):
         upsells.append(Upsell(
@@ -73,7 +70,6 @@ def load_menu_data(
             price=u.get("price")
         ))
 
-    # === Load deals
     deals = []
     for d in deals_raw.get("deals", []):
         deals.append(Deal(
@@ -83,7 +79,6 @@ def load_menu_data(
             discount_percent=d.get("discount_percent", 20.0)
         ))
 
-    # === Attach ingredients to items
     ing_items = ingredients_raw.get("items", [])
     ing_lookup = {i["name"]: i for i in ing_items}
 

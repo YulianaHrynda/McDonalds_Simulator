@@ -1,4 +1,3 @@
-# bot/main.py
 import asyncio
 from aiogram import Bot, Dispatcher
 from bot.dispatcher import setup_dispatcher

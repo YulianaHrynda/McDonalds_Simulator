@@ -12,7 +12,6 @@ from core.order_engine.deal_applier import maybe_apply_double_deal
 
 router = Router()
 
-# Load menu once
 menu = load_menu_data(
     virtual_items_path=Path("menu_data/menu_virtual_items.yaml"),
     ingredients_path=Path("menu_data/menu_ingredients.yaml"),
@@ -31,13 +30,12 @@ async def order_handler(message: types.Message):
     user_input = message.text.strip()
 
     if user_input.lower() in ["that's all", "done", "finish", "no, that's all"]:
-        result = {"intent": "finalize_order"}  # ручний fallback
+        result = {"intent": "finalize_order"}
     else:
         result = parse_order(user_input)
 
     context = get_user_context(user_id)
 
-    # 🧙 obrobka pending_slot
     if "pending_slot" in context:
         slot = context.pop("pending_slot")
 
@@ -116,7 +114,7 @@ async def order_handler(message: types.Message):
                         success = add_sauce_to_combo(order, combo.name, "ketchup")
                         if success:
                             await message.answer("🥫 Added a dipping sauce to your combo!")
-                            # 👉 Далі можемо запропонувати ще десерт
+
                             upsell_msg = get_upsell_suggestion(order)
                             if upsell_msg:
                                 context["pending_slot"] = {
@@ -152,7 +150,6 @@ async def order_handler(message: types.Message):
                     break
             return
 
-    # 🧠 виклик LLM
     result = parse_order(user_input)
 
     if result.get("intent") == "add_items":
@@ -206,5 +203,5 @@ async def order_handler(message: types.Message):
         return
 
 
-    await message.answer(f"🧠 Parsed response:\n```{result}```", parse_mode="Markdown")
+    await message.answer(f"Parsed response:\n```{result}```", parse_mode="Markdown")
     await message.answer("What else can I get you?")

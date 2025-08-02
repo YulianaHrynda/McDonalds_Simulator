@@ -23,10 +23,9 @@ def check_missing_sizes(order: OrderState, menu: Menu) -> Optional[str]:
         if item.size is not None:
             continue
 
-        # Знайти відповідний елемент у меню
         menu_item = next((m for m in menu.items if m.name == item.name), None)
         if not menu_item or not menu_item.sizes:
-            continue  # немає доступних розмірів, значить не уточнюємо
+            continue
 
         return f"What size would you like for your {item.name}?"
 

@@ -14,7 +14,6 @@ def apply_llm_result(llm_result: Dict[str, Any], menu: Menu, order: OrderState) 
         add_ingredients = item.get("add_ingredients", [])
         quantity = item.get("quantity", 1)
 
-        # === Combo (explicit or implied)
         if item.get("combo") is True or item_type == "combo":
             combo = next((c for c in menu.combos if c.name.lower().startswith(item_name.lower())), None)
             if combo:
@@ -34,7 +33,6 @@ def apply_llm_result(llm_result: Dict[str, Any], menu: Menu, order: OrderState) 
                     messages.append(f"⚠️ Couldn't add combo: {item_name}")
                 continue
 
-        # === Regular item
         added_items = add_menu_item_to_order(
             menu=menu,
             order=order,
