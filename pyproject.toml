@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "mcdonalds-telegram-bot"
+version = "0.1.0"
+description = "A Telegram bot that simulates McDonald's ordering via chat"
+authors = ["Yuliana <hrynda.pn@ucu.edu.ua>"]
+readme = "README.md"
+packages = [{ include = "bot" }, { include = "core" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+aiogram = {extras = ["fastapi"], version = "^3.21.0"}
+openai = "^1.30.0"
+pydantic = "^2.6.4"
+pyyaml = "^6.0.1"
+python-dotenv = "^1.0.1"
+uvicorn = "^0.30.1"
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.4.2"
+mypy = "^1.10.0"
+ruff = "^0.4.6"
+pytest = "^8.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
