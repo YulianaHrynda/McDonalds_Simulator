@@ -15,7 +15,7 @@ def apply_llm_result(llm_result: Dict[str, Any], menu: Menu, order: OrderState) 
         quantity = item.get("quantity", 1)
 
         if item.get("combo") is True or item_type == "combo":
-            combo = next((c for c in menu.combos if c.name.lower().startswith(item_name.lower())), None)
+            combo = next((c for c in menu.combos if item_name.lower() in c.name.lower()), None)
             if combo:
                 added = add_combo_to_order(
                     menu=menu,
@@ -44,8 +44,13 @@ def apply_llm_result(llm_result: Dict[str, Any], menu: Menu, order: OrderState) 
         )
 
         if added_items:
-            messages.append(f"✅ Added {item_type}: {item_name} x{len(added_items)}")
+            actual_name = added_items[0].name
+            messages.append(f"✅ Added {item_type}: {actual_name} x{len(added_items)}")
         else:
             messages.append(f"⚠️ Item not found or invalid: {item_name}")
+
+    was_any_added = any(msg.startswith("✅") for msg in messages)
+    if not was_any_added:
+        return ["Sorry, I didn’t understand that. Could you please rephrase or clarify your order?"]
 
     return messages

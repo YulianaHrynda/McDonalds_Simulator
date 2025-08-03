@@ -16,6 +16,11 @@ Respond ONLY with a JSON object of the form:
       "name": "Coca-Cola",
       "type": "drink",
       "size": "medium"
+    },
+    {
+      "name": "McFlurry with M&M's",
+      "type": "dessert",
+      "size": null
     }
   ],
   "intent": "add_items"
@@ -25,5 +30,6 @@ Allowed intents:
 - "add_items" — the user added something to their order
 - "finalize_order" — the user is done ordering
 - "clarify" — if you're unsure or the input is ambiguous
+- "start_order" — the user expresses the desire to start an order (e.g., "I want to order", "Can I get something?", "I'd like to order")
 
 Each item can also include an optional "quantity" field (integer, default 1).

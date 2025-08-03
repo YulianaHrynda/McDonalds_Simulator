@@ -15,7 +15,12 @@ def add_menu_item_to_order(
     add_ingredients: Optional[list[str]] = None,
     quantity: int = 1,
 ) -> list[OrderItem]:
-    menu_item = next((item for item in menu.items if item.name == item_name), None)
+    menu_item = next((
+        item for item in menu.items
+        if item.name.lower() == item_name.lower()
+        or item_name.lower() in item.name.lower()
+    ), None)
+
     if not menu_item:
         return []
 

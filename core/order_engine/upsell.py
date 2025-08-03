@@ -5,13 +5,15 @@ from core.order_engine.adder import add_menu_item_to_order
 
 
 def get_upsell_suggestion(order: OrderState) -> Optional[str]:
-    for item in order.items:
-        if item.type == "burger" and not item.is_combo_upgrade:
-            return "Would you like to make it a combo?"
+    if not order.upsell_flags.get("combo_declined", False):
+        for item in order.items:
+            if item.type == "burger" and not item.is_combo_upgrade:
+                return "Would you like to make it a combo?"
 
     for item in order.items:
-        if item.type == "combo" and "sauce" not in item.extras:
+        if item.type == "combo" and "sauce" not in item.extras and "no_sauce" not in item.extras:
             return "Would you like a dipping sauce with your combo?"
+
 
     if not order.upsell_flags.get("dessert_offered", False):
         if order.has_combo() or order.has_burger():
@@ -36,7 +38,7 @@ def upgrade_burger_to_combo(
 
     order.items.remove(burger)
 
-    combo = add_combo_to_order(
+    combo_items = add_combo_to_order(
         menu=menu,
         order=order,
         combo_name=matching_combo.name,
@@ -46,10 +48,13 @@ def upgrade_burger_to_combo(
         add_ingredients=[i.name for i in burger.ingredients_added]
     )
 
-    if combo:
+    if combo_items:
+        combo = combo_items[0]
         combo.is_combo_upgrade = True
+        return combo
 
-    return combo
+    return None
+
 
 
 def add_sauce_to_combo(order: OrderState, combo_name: str, sauce_name: str) -> bool:

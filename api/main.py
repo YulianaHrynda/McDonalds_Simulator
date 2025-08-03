@@ -1,6 +1,9 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from uuid import uuid4
+from pathlib import Path
+from typing import Dict
+
 from core.models import OrderState
 from core.menu_loader import load_menu_data
 from core.order_engine.apply_llm import apply_llm_result
@@ -9,10 +12,10 @@ from core.order_engine.deal_applier import maybe_apply_double_deal
 from core.order_engine.slot_filler import check_combo_missing_slots, check_missing_sizes
 from core.order_engine.upsell import get_upsell_suggestion
 from core.llm_processor import parse_order
-from pathlib import Path
 
 app = FastAPI()
-ORDERS: dict[str, OrderState] = {}
+
+ORDERS: Dict[str, OrderState] = {}
 
 menu = load_menu_data(
     virtual_items_path=Path("menu_data/menu_virtual_items.yaml"),
@@ -24,11 +27,27 @@ menu = load_menu_data(
 class UserMessage(BaseModel):
     text: str
 
+
+@app.post("/start")
+def start_order():
+    order_id = str(uuid4())
+    ORDERS[order_id] = OrderState()
+    return {
+        "order_id": order_id,
+        "message": "👋 Welcome to McDonald's! What can I get you started with?"
+    }
+
+
+
 @app.post("/order/new")
 def new_order():
+    """
+    RESTful створення нового замовлення.
+    """
     order_id = str(uuid4())
     ORDERS[order_id] = OrderState()
     return {"order_id": order_id}
+
 
 @app.post("/order/{order_id}/message")
 def process_message(order_id: str, message: UserMessage):
@@ -38,6 +57,7 @@ def process_message(order_id: str, message: UserMessage):
     order = ORDERS[order_id]
     user_input = message.text.strip()
 
+    # Завершення замовлення
     if user_input.lower() in ["that's all", "done", "finish", "no, that's all"]:
         summary = generate_order_summary(order)
         del ORDERS[order_id]
